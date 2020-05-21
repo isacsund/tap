@@ -1,10 +1,20 @@
-use std::{fs, io};
+use std::{fs, io, str};
 mod app;
 
 fn run() {
     let matches = app::app().get_matches();
 
     match matches.subcommand() {
+        ("file", Some(file_matches)) => {
+            let fname = file_matches.value_of("archive").unwrap();
+            let fname = std::path::Path::new(fname);
+            let file = fs::File::open(&fname).unwrap();
+            let archive = zip::ZipArchive::new(file).unwrap();
+
+            if let comment = archive.comment() {
+                println!("Comment:\n{:?}", str::from_utf8(&comment).unwrap());
+            }
+        }
         ("unzip", Some(extract_matches)) => {
             let fname = extract_matches.value_of("archive").unwrap();
             let fname = std::path::Path::new(fname);
