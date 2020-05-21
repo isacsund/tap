@@ -15,8 +15,8 @@ fn run() {
                 println!("Comment:\n{:?}", str::from_utf8(&comment).unwrap());
             }
         }
-        ("unzip", Some(extract_matches)) => {
-            let fname = extract_matches.value_of("archive").unwrap();
+        ("unzip", Some(unzip_matches)) => {
+            let fname = unzip_matches.value_of("archive").unwrap();
             let fname = std::path::Path::new(fname);
             let file = fs::File::open(&fname).unwrap();
 
