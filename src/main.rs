@@ -5,7 +5,7 @@ fn run() {
     let matches = app::app().get_matches();
 
     match matches.subcommand() {
-        ("extract", Some(extract_matches)) => {
+        ("unzip", Some(extract_matches)) => {
             let fname = extract_matches.value_of("archive").unwrap();
             let fname = std::path::Path::new(fname);
             let file = fs::File::open(&fname).unwrap();
