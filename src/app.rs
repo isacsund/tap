@@ -1,4 +1,4 @@
-use clap::{crate_authors, crate_version, App, Arg};
+use clap::{crate_authors, crate_version, App, Arg, SubCommand};
 
 const ABOUT: &str = "
 tap description
@@ -34,12 +34,10 @@ pub fn app() -> App<'static, 'static> {
         .usage(USAGE)
         .template(TEMPLATE)
         .help_message("Prints help information. Use --help for more details.")
-        .arg(
-            Arg::with_name("extract")
-                .short("e")
-                .takes_value(true)
-                .help("Extracts the zip archive"),
+        .subcommand(
+            SubCommand::with_name("extract")
+                .about("Extracts a zip file")
+                .arg(Arg::with_name("archive").required(true)),
         );
-
     app
 }
