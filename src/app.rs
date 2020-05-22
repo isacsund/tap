@@ -36,12 +36,12 @@ pub fn app() -> App<'static, 'static> {
         .help_message("Prints help information. Use --help for more details.")
         .subcommand(
             SubCommand::with_name("file")
-                .about("Show information about a ZIP archive.")
+                .about("Show information about an archive.")
                 .arg(Arg::with_name("archive").required(true).index(1)),
         )
         .subcommand(
-            SubCommand::with_name("unzip")
-                .about("Extract files contained in a ZIP archive.")
+            SubCommand::with_name("extract")
+                .about("Extract files contained in an archive.")
                 .arg(Arg::with_name("archive").required(true).index(1)),
         );
     app

@@ -15,8 +15,8 @@ fn run() {
                 println!("Comment:\n{:?}", str::from_utf8(&comment).unwrap());
             }
         }
-        ("unzip", Some(unzip_matches)) => {
-            let fname = unzip_matches.value_of("archive").unwrap();
+        ("extract", Some(extract_matches)) => {
+            let fname = extract_matches.value_of("archive").unwrap();
 
             let format = ArchiveFormat::get_format_from_archive(fname).unwrap();
             match format {
