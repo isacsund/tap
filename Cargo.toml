@@ -6,5 +6,6 @@ edition = "2018"
 
 [dependencies]
 clap = "2.33.1"
+log = "0.4.8"
 zip = "0.5"
 rar = "0.2.0"

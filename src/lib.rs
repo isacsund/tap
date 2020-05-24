@@ -1,4 +1,5 @@
 use clap::ArgMatches;
+use log;
 use std::{fs, io, str};
 
 pub fn extract(matches: &ArgMatches) {
@@ -9,7 +10,7 @@ pub fn extract(matches: &ArgMatches) {
         ArchiveFormat::Rar => {
             let archive = rar::Archive::extract_all(fname, ".", "").unwrap();
             for i in 0..archive.files.len() {
-                println!("File {} extracted,", archive.files[i].name);
+                log::info!("File {} extracted.", archive.files[i].name);
             }
         }
         ArchiveFormat::Zip => {
@@ -27,7 +28,7 @@ pub fn extract(matches: &ArgMatches) {
                     }
                 }
 
-                println!(
+                log::info!(
                     "File {} extracted to \"{}\"",
                     i,
                     outpath.as_path().display()

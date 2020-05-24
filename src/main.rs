@@ -1,11 +1,21 @@
 mod app;
+mod logger;
 
+use crate::logger::Logger;
 use tap::extract;
 
+use std::error;
 use std::fs;
+use std::process;
 
-pub fn run() {
+pub fn run() -> Result<(), Box<dyn error::Error>> {
     let app = app::app();
+
+    if let Err(err) = Logger::init() {
+        return Err(format!("Failed to initialize logger: {}", err).into());
+    }
+    log::set_max_level(log::LevelFilter::Info);
+
     let matches = app.get_matches();
 
     match matches.subcommand() {
@@ -19,14 +29,26 @@ pub fn run() {
             if !comment.is_empty() {
                 println!("Comment:\n{:?}", comment);
             }
+            Ok(())
         }
         ("extract", Some(extract_matches)) => {
             extract(extract_matches);
+            Ok(())
         }
-        _ => eprintln!("No command was provided"),
+        _ => Err(format!("No command was provided").into()),
     }
 }
 
 fn main() {
-    run();
+    let result = run();
+
+    match result {
+        Err(error) => {
+            eprintln!("An error occured: {}", error);
+            process::exit(1);
+        }
+        Ok(()) => {
+            process::exit(0);
+        }
+    }
 }
