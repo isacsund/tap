@@ -8,6 +8,7 @@ pub fn extract(matches: &ArgMatches) {
 
     match format {
         ArchiveFormat::Rar => {
+            // This does not currently support extracting nested directories.
             let archive = rar::Archive::extract_all(fname, ".", "").unwrap();
             for i in 0..archive.files.len() {
                 log::info!("File {} extracted.", archive.files[i].name);
@@ -28,14 +29,18 @@ pub fn extract(matches: &ArgMatches) {
                     }
                 }
 
-                log::info!(
-                    "File {} extracted to \"{}\"",
-                    i,
-                    outpath.as_path().display()
-                );
+                if (&*file.name()).ends_with('/') {
+                    fs::create_dir_all(&outpath).unwrap();
+                } else {
+                    log::info!(
+                        "File {} extracted to \"{}\"",
+                        i,
+                        outpath.as_path().display()
+                    );
 
-                let mut outfile = fs::File::create(&outpath).unwrap();
-                io::copy(&mut file, &mut outfile).unwrap();
+                    let mut outfile = fs::File::create(&outpath).unwrap();
+                    io::copy(&mut file, &mut outfile).unwrap();
+                }
             }
         }
     }
