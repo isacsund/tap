@@ -1,5 +1,7 @@
+use crate::archive::ArchiveFormat;
 use clap::{App, Arg, ArgMatches, SubCommand};
 use std::error::Error;
+use std::{fs, io, str};
 
 pub const COMMAND_NAME: &str = "extract";
 
@@ -10,8 +12,40 @@ pub fn command() -> App<'static, 'static> {
 }
 
 pub fn handler(args: &ArgMatches) -> Result<(), Box<dyn Error>> {
-    // TODO
-    println!("Args: {:?}", args);
+    // This is safe to unwrap since it's required
+    let archive = args.value_of("archive").unwrap();
+    let format = ArchiveFormat::get_format(archive).unwrap();
 
-    unimplemented!();
+    match format {
+        ArchiveFormat::Zip => {
+            let path = std::path::Path::new(archive);
+            let file = fs::File::open(&path).unwrap();
+            let mut archive = zip::ZipArchive::new(file).unwrap();
+            for i in 0..archive.len() {
+                let mut file = archive.by_index(i).unwrap();
+                let outpath = file.sanitized_name();
+
+                {
+                    let comment = file.comment();
+                    if !comment.is_empty() {
+                        println!("File {} comment: {}", i, comment);
+                    }
+                }
+
+                if (&*file.name()).ends_with('/') {
+                    fs::create_dir_all(&outpath).unwrap();
+                } else {
+                    log::debug!(
+                        "File {} extracted to \"{}\"",
+                        i,
+                        outpath.as_path().display()
+                    );
+
+                    let mut outfile = fs::File::create(&outpath).unwrap();
+                    io::copy(&mut file, &mut outfile).unwrap();
+                }
+            }
+            Ok(())
+        }
+    }
 }
