@@ -1,10 +1,6 @@
-extern crate clap;
-
 extern crate tap;
 
-use tap::app;
-
-mod cmd;
+use tap::{app, cmd};
 
 fn main() {
     let app = app::new().subcommand(cmd::extract::command());

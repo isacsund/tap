@@ -1,5 +1,7 @@
-use clap::{crate_authors, crate_version, App, AppSettings, ArgMatches};
+use clap::{crate_authors, crate_version, App, AppSettings, Arg, ArgMatches};
 use std::error::Error;
+
+use crate::logger::Logger;
 
 const ABOUT: &str = "
 tap description
@@ -35,6 +37,7 @@ pub fn new() -> App<'static, 'static> {
         .usage(USAGE)
         .template(TEMPLATE)
         .help_message("Prints help information. Use --help for more details.")
+        .arg(Arg::with_name("debug").short("d"))
 }
 
 pub fn parse_and_process<'a, 'b, F>(app: App<'a, 'b>, handler: F) -> !
@@ -62,6 +65,14 @@ where
     F: FnOnce(&str, &ArgMatches<'a>) -> Result<(), Box<dyn Error>>,
 {
     parse_and_process(app.setting(AppSettings::SubcommandRequired), |args| {
+        if let Err(error) = Logger::init() {
+            return Err(format!("Failed to initialize logger: {}", error).into());
+        }
+        if args.is_present("debug") {
+            log::set_max_level(log::LevelFilter::Debug);
+        } else {
+            log::set_max_level(log::LevelFilter::Warn);
+        }
         if let (name, Some(args)) = args.subcommand() {
             handler(name, args)
         } else {
