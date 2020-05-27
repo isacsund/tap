@@ -1,5 +1,6 @@
 use clap::{crate_authors, crate_version, App, AppSettings, Arg, ArgMatches};
-use std::error::Error;
+
+use anyhow::{anyhow, Result};
 
 use crate::logger::Logger;
 
@@ -42,19 +43,17 @@ pub fn new() -> App<'static, 'static> {
 
 pub fn parse_and_process<'a, 'b, F>(app: App<'a, 'b>, handler: F) -> !
 where
-    F: FnOnce(ArgMatches<'a>) -> Result<(), Box<dyn Error>>,
+    F: FnOnce(ArgMatches<'a>) -> Result<()>,
 {
     let result = match app.get_matches_safe() {
         Ok(args) => handler(args),
-        Err(error) => match error.kind {
-            _ => Err(error.message.into()),
-        },
+        Err(error) => Err(anyhow::Error::from(error)),
     };
 
     match result {
         Ok(_) => std::process::exit(0),
         Err(error) => {
-            eprintln!("Error: {}", error);
+            eprintln!("{:?}", error);
             std::process::exit(1)
         }
     }
@@ -62,11 +61,11 @@ where
 
 pub fn parse_and_process_subcommand<'a, 'b, F>(app: App<'a, 'b>, handler: F) -> !
 where
-    F: FnOnce(&str, &ArgMatches<'a>) -> Result<(), Box<dyn Error>>,
+    F: FnOnce(&str, &ArgMatches<'a>) -> Result<()>,
 {
     parse_and_process(app.setting(AppSettings::SubcommandRequired), |args| {
         if let Err(error) = Logger::init() {
-            return Err(format!("Failed to initialize logger: {}", error).into());
+            return Err(anyhow!("Failed to initialize logger: {}", error));
         }
         if args.is_present("debug") {
             log::set_max_level(log::LevelFilter::Debug);
@@ -76,7 +75,8 @@ where
         if let (name, Some(args)) = args.subcommand() {
             handler(name, args)
         } else {
-            Err("Unable to determine the sub-command".into())
+            // This should not happen since subcommands are required
+            Err(anyhow!("Unable to determine the subcommand"))
         }
     })
 }

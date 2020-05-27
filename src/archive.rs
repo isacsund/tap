@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use std::str;
 
 pub enum ArchiveFormat {
@@ -5,12 +6,12 @@ pub enum ArchiveFormat {
 }
 
 impl ArchiveFormat {
-    pub fn get_format(archive: &str) -> Result<ArchiveFormat, &'static str> {
+    pub fn get_format(archive: &str) -> Result<ArchiveFormat> {
         let archive = archive.to_lowercase();
         if archive.ends_with(".zip") {
             Ok(ArchiveFormat::Zip)
         } else {
-            Err("Unkown format!")
+            Err(anyhow!("Unkown archive format"))
         }
     }
 }
