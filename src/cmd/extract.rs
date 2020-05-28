@@ -2,7 +2,6 @@ use crate::archive::ArchiveFormat;
 
 use anyhow::Result;
 use clap::{App, Arg, ArgMatches, SubCommand};
-use std::io::prelude::*;
 use std::{fs, io, str};
 
 pub const COMMAND_NAME: &str = "extract";
