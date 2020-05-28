@@ -2,6 +2,7 @@ use crate::archive::ArchiveFormat;
 
 use anyhow::Result;
 use clap::{App, Arg, ArgMatches, SubCommand};
+use std::io::prelude::*;
 use std::{fs, io, str};
 
 pub const COMMAND_NAME: &str = "extract";
@@ -46,6 +47,12 @@ pub fn handler(args: &ArgMatches) -> Result<()> {
                     io::copy(&mut file, &mut outfile).unwrap();
                 }
             }
+            Ok(())
+        }
+        ArchiveFormat::Tar => {
+            let file = fs::File::open(archive).unwrap();
+            let mut archive = tar::Archive::new(file);
+            archive.unpack(".").unwrap();
             Ok(())
         }
     }
